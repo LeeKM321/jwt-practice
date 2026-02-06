@@ -1,1 +1,53 @@
-spring.application.name=jwt-practice
+spring:
+  application:
+    name: jwt-practice
+  # H2 Database
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  datasource:
+    url: jdbc:h2:mem:jwtdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+    defer-datasource-initialization: true
+
+  # SQL ???
+  sql:
+    init:
+      mode: always
+
+# JWT Configuration (??? ??? ??? ???? ?? properties? @Value? ???? ?? ??)
+jwt:
+  secret: ${JWT_SECRET:mySecretKeyForJwtTokenGeneration1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ}
+  access-token-expiration: 900000      # 15? (???)
+  refresh-token-expiration: 1209600000 # 2? (???)
+  issuer: codeit
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.codeit.jwt: DEBUG
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# Server
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
