@@ -9,9 +9,9 @@ import com.codeit.jwt.exception.BusinessException;
 import com.codeit.jwt.exception.ErrorCode;
 import com.codeit.jwt.repository.UserRepository;
 import com.codeit.jwt.util.JwtUtil;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,8 +81,32 @@ public class AuthService {
         );
     }
 
+    /**
+     * Access Token 갱신
+     *
+     * @return
+     */
+
+    public LoginResponse refreshAccessToken(String refreshToken) {
+
+        // 리프레시 토큰 검증
+        Long userId = refreshTokenService.validateRefreshToken(refreshToken);
+
+        // 사용자 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        // 새 액세스 토큰 발급
+        String newAccessToken = jwtUtil.generateAccessToken(user);
+
+        return LoginResponse.of(newAccessToken, refreshToken, jwtUtil.getAccessTokenExpirationInSeconds());
+    }
 
 
+    @Transactional
+    public void logout(@NotBlank(message = "Refresh Token은 필수입니다.") String refreshToken) {
+        refreshTokenService.deleteRefreshToken(refreshToken);
+    }
 }
 
 
